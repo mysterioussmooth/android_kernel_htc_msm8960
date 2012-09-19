@@ -204,8 +204,16 @@ struct msm_fb_data_type {
 	struct work_struct dimming_work;
 	struct timer_list dimming_update_timer;
 	struct workqueue_struct *sre_wq;
-   struct work_struct sre_work;
-   struct timer_list sre_update_timer;
+	struct work_struct sre_work;
+	struct timer_list sre_update_timer;
+	u32 acq_fen_cnt;
+	struct sync_fence *acq_fen[MDP_MAX_FENCE_FD];
+	int cur_rel_fen_fd;
+	struct sync_pt *cur_rel_sync_pt;
+	struct sync_fence *cur_rel_fence;
+	struct sync_fence *last_rel_fence;
+	struct sw_sync_timeline *timeline;
+	int timeline_value;
 };
 
 struct dentry *msm_fb_get_debugfs_root(void);
