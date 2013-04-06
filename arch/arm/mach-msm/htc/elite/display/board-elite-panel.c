@@ -434,11 +434,6 @@ void __init msm8960_mdp_writeback(struct memtype_reserve* reserve_table)
 #endif
 }
 
-static char wfd_check_mdp_iommu_split_domain(void)
-{
-	return mdp_pdata.mdp_iommu_split_domain;
-}
-
 #ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL
 static struct resource hdmi_msm_resources[] = {
 	{
@@ -570,6 +565,11 @@ static int hdmi_core_power(int on, int show)
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
 
 #ifdef CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
+static char wfd_check_mdp_iommu_split_domain(void)
+{
+	return mdp_pdata.mdp_iommu_split_domain;
+}
+
 static struct msm_wfd_platform_data wfd_pdata = {
 	.wfd_check_mdp_iommu_split = wfd_check_mdp_iommu_split_domain,
 };
