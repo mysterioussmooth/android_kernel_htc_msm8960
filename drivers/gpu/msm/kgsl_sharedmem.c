@@ -1,4 +1,4 @@
-/* Copyright (c) 2002,2007-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2002,2007-2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -603,7 +603,7 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 	while (len > 0) {
 		struct page *page;
 		unsigned int gfp_mask = GFP_KERNEL | __GFP_HIGHMEM |
-			__GFP_NOWARN | __GFP_NORETRY;
+			__GFP_NOWARN;
 		int j;
 
 		/* don't waste space at the end of the allocation*/

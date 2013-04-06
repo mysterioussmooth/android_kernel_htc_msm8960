@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2009-2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -370,6 +370,7 @@ struct mdp4_overlay_pipe {
 	uint32 blt_ov_done;
 	uint32 blt_dmap_koff;
 	uint32 blt_dmap_done;
+	uint32 blt_forced;
 	uint32 req_clk;
 	uint64 bw_ab_quota;
 	uint64 bw_ib_quota;
@@ -782,6 +783,7 @@ int mdp4_dsi_cmd_on(struct platform_device *pdev);
 int mdp4_dsi_cmd_off(struct platform_device *pdev);
 int mdp4_dsi_video_off(struct platform_device *pdev);
 int mdp4_dsi_video_on(struct platform_device *pdev);
+int mdp4_dsi_video_splash_done(void);
 void mdp4_primary_vsync_dsi_video(void);
 void mdp4_dsi_cmd_base_swap(int cndx, struct mdp4_overlay_pipe *pipe);
 void mdp4_dsi_cmd_wait4vsync(int cndx);
@@ -850,6 +852,11 @@ static inline void mdp4_overlay_dsi_video_start(void)
 {
 	/* empty */
 }
+
+static int mdp4_dsi_video_splash_done(void)
+{
+}
+
 #ifdef CONFIG_FB_MSM_MDP40
 static inline void mdp_dsi_cmd_overlay_suspend(struct msm_fb_data_type *mfd)
 {
@@ -906,6 +913,7 @@ int mdp4_writeback_queue_buffer(struct fb_info *info,
 void mdp4_writeback_dma_stop(struct msm_fb_data_type *mfd);
 int mdp4_writeback_init(struct fb_info *info);
 int mdp4_writeback_terminate(struct fb_info *info);
+int mdp4_writeback_set_mirroring_hint(struct fb_info *info, int hint);
 
 uint32_t mdp_block2base(uint32_t block);
 int mdp_hist_lut_config(struct mdp_hist_lut_data *data);
@@ -963,13 +971,5 @@ void mdp4_wfd_pipe_queue(int cndx, struct mdp4_overlay_pipe *pipe);
 void mdp4_wfd_init(int cndx);
 int mdp4_wfd_pipe_commit(struct msm_fb_data_type *mfd, int cndx, int wait);
 #endif
-#ifdef CONFIG_FB_MSM_OVERLAY
-int mdp4_unmap_sec_resource(void);
-#else
-static inline void mdp4_unmap_sec_resource(void);
-{
-	/* empty */
-	return 0;
-}
-#endif
+
 #endif /* MDP_H */

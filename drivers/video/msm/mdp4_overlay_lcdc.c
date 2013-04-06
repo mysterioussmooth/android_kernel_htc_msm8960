@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2009-2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -146,6 +146,21 @@ void mdp4_lcdc_pipe_queue(int cndx, struct mdp4_overlay_pipe *pipe)
 	vp->update_cnt++;
 	mutex_unlock(&vctrl->update_lock);
 	mdp4_stat.overlay_play[pipe->mixer_num]++;
+}
+
+static void mdp4_lcdc_pipe_clean(struct vsync_update *vp)
+{
+	struct mdp4_overlay_pipe *pipe;
+	int i;
+
+	pipe = vp->plist;
+	for (i = 0; i < OVERLAY_PIPE_MAX; i++, pipe++) {
+		if (pipe->pipe_used) {
+			mdp4_overlay_iommu_pipe_free(pipe->pipe_ndx, 0);
+			pipe->pipe_used = 0; /* clear */
+		}
+	}
+	vp->update_cnt = 0;     /* empty queue */
 }
 
 static void mdp4_lcdc_blt_ov_update(struct mdp4_overlay_pipe *pipe);
@@ -331,9 +346,6 @@ void mdp4_lcdc_wait4vsync(int cndx)
 
 	if (atomic_read(&vctrl->suspend) > 0)
 		return;
-
-	/* start timing generator & mmu if they are not started yet */
-	mdp4_overlay_lcdc_start();
 
 	mdp4_lcdc_vsync_irq_ctrl(cndx, 1);
 
@@ -673,10 +685,24 @@ int mdp4_lcdc_on(struct platform_device *pdev)
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 
 	mdp_histogram_ctrl_all(TRUE);
+	mdp4_overlay_lcdc_start();
 
 	return ret;
 }
 
+/* timing generator off */
+static void mdp4_lcdc_tg_off(struct vsycn_ctrl *vctrl)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&vctrl->spin_lock, flags);
+	INIT_COMPLETION(vctrl->vsync_comp);
+	vctrl->wait_vsync_cnt++;
+	MDP_OUTP(MDP_BASE + LCDC_BASE, 0); /* turn off timing generator */
+	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
+
+	mdp4_lcdc_wait4vsync(0);
+}
 int mdp4_lcdc_off(struct platform_device *pdev)
 {
 	int ret = 0;
@@ -692,10 +718,9 @@ int mdp4_lcdc_off(struct platform_device *pdev)
 	vctrl = &vsync_ctrl_db[cndx];
 	pipe = vctrl->base_pipe;
 
-	atomic_set(&vctrl->suspend, 1);
-	atomic_set(&vctrl->vsync_resume, 0);
+	mdp4_lcdc_wait4vsync(cndx);
 
-	msleep(20);	/* >= 17 ms */
+	atomic_set(&vctrl->vsync_resume, 0);
 
 	complete_all(&vctrl->vsync_comp);
 
@@ -710,8 +735,6 @@ int mdp4_lcdc_off(struct platform_device *pdev)
 
 	mdp_histogram_ctrl_all(FALSE);
 
-	MDP_OUTP(MDP_BASE + LCDC_BASE, 0);
-
 	lcdc_enabled = 0;
 
 	undx =  vctrl->update_ndx;
@@ -721,17 +744,8 @@ int mdp4_lcdc_off(struct platform_device *pdev)
 		 * pipe's iommu will be freed at next overlay play
 		 * and iommu_drop statistic will be increased by one
 		 */
-		vp->update_cnt = 0;     /* empty queue */
-	}
-
-	undx =  vctrl->update_ndx;
-	vp = &vctrl->vlist[undx];
-	if (vp->update_cnt) {
-		/*
-		 * pipe's iommu will be freed at next overlay play
-		 * and iommu_drop statistic will be increased by one
-		 */
-		vp->update_cnt = 0;     /* empty queue */
+		pr_warn("%s: update_cnt=%d\n", __func__, vp->update_cnt);
+		mdp4_lcdc_pipe_clean(vp);
 	}
 
 	if (pipe) {
@@ -754,6 +768,10 @@ int mdp4_lcdc_off(struct platform_device *pdev)
 				vctrl->base_pipe->pipe_ndx, 1);
 		}
 	}
+
+	mdp4_lcdc_tg_off(vctrl);
+
+	atomic_set(&vctrl->suspend, 1);
 
 	/* MDP clock disable */
 	mdp_clk_ctrl(0);

@@ -58,9 +58,6 @@ struct mdp4_overlay_ctrl {
 	uint32 mixer0_played;
 	uint32 mixer1_played;
 	uint32 mixer2_played;
-	uint32 sec_mapped;
-	uint32 mmu_clk_on;
-	uint32 sec_active;
 } mdp4_overlay_db = {
 	.cs_controller = CS_CONTROLLER_0,
 	.plist = {
@@ -122,43 +119,6 @@ struct mdp4_overlay_perf perf_current;
 
 static struct ion_client *display_iclient;
 
-static int mdp4_map_sec_resource(void)
-{
-	int ret = 0;
-	if (ctrl->sec_mapped)
-		return 0;
-
-	ret = mdp_enable_iommu_clocks();
-	if (ret) {
-		pr_err("IOMMU clock enabled failed while open");
-		return ret;
-	}
-	ret = msm_ion_secure_heap(ION_HEAP(ION_CP_MM_HEAP_ID));
-	if (ret)
-		pr_err("ION heap secure failed heap id %d ret %d\n",
-			   ION_CP_MM_HEAP_ID, ret);
-	else
-		ctrl->sec_mapped = 1;
-	mdp_disable_iommu_clocks();
-	return ret;
-}
-
-int mdp4_unmap_sec_resource(void)
-{
-	int ret = 0;
-	if ((ctrl->sec_mapped == 0) || (ctrl->sec_active))
-		return 0;
-
-	ret = mdp_enable_iommu_clocks();
-	if (ret) {
-		pr_err("IOMMU clock enabled failed while close\n");
-		return ret;
-	}
-	msm_ion_unsecure_heap(ION_HEAP(ION_CP_MM_HEAP_ID));
-	ctrl->sec_mapped = 0;
-	mdp_disable_iommu_clocks();
-	return ret;
-}
 
 /*
  * mdp4_overlay_iommu_unmap_freelist()
@@ -2484,6 +2444,7 @@ static int mdp4_calc_pipe_mdp_clk(struct msm_fb_data_type *mfd,
 	u32 hsync = 0;
 	u32 shift = 16;
 	u64 rst;
+	int ptype;
 	int ret = -EINVAL;
 
 	if (!pipe) {
@@ -2547,6 +2508,24 @@ static int mdp4_calc_pipe_mdp_clk(struct msm_fb_data_type *mfd,
 		pr_err("%s: pipe dst_h is zero!\n", __func__);
 		pipe->req_clk = mdp_max_clk;
 		return ret;
+	}
+
+	if (pipe->mixer_num == MDP4_MIXER0) {
+		if (pipe->blt_forced)
+			return 0;
+
+		ptype = mdp4_overlay_format2type(pipe->src_format);
+		if (ptype == OVERLAY_TYPE_VIDEO) {
+			if ((pipe->src_h >= 720) && (pipe->src_w >= 1080))  {
+				pipe->req_clk = (u32) mdp_max_clk + 100; 
+				pipe->blt_forced++;
+				return 0;
+			} else if ((pipe->src_h >= 1080) && (pipe->src_w >= 720))  {
+				pipe->req_clk = (u32) mdp_max_clk + 100; 
+				pipe->blt_forced++;
+				return 0;
+			}
+		}
 	}
 
 	/*
@@ -2679,13 +2658,13 @@ static int mdp4_calc_pipe_mdp_bw(struct msm_fb_data_type *mfd,
 	/* factor 1.25 for ib */
 	pipe->bw_ib_quota = quota * MDP4_BW_IB_FACTOR / 100;
 	/* down scaling factor for ib */
-	if ((pipe->dst_h) && (pipe->src_h) &&
+	if ((!pipe->dst_h) && (!pipe->src_h) &&
 	    (pipe->src_h > pipe->dst_h)) {
-		u32 ib = quota;
+		u64 ib = quota;
 		ib *= pipe->src_h;
 		ib /= pipe->dst_h;
-		pipe->bw_ib_quota = max((u64)ib, pipe->bw_ib_quota);
-		pr_debug("%s: src_h=%d dst_h=%d mdp ib %u, ib_quota=%llu\n",
+		pipe->bw_ib_quota = max(ib, pipe->bw_ib_quota);
+		pr_debug("%s: src_h=%d dst_h=%d mdp ib %llu, ib_quota=%llu\n",
 			 __func__, pipe->src_h, pipe->dst_h,
 			 ib<<shift, pipe->bw_ib_quota<<shift);
 	}
@@ -3139,10 +3118,6 @@ int mdp4_overlay_set(struct fb_info *info, struct mdp_overlay *req)
 		}
 	}
 
-	if (pipe->flags & MDP_SECURE_OVERLAY_SESSION) {
-		mdp4_map_sec_resource();
-		ctrl->sec_active = TRUE;
-	}
 	mdp4_stat.overlay_set[pipe->mixer_num]++;
 
 	if (pipe->flags & MDP_OVERLAY_PP_CFG_EN) {
@@ -3189,6 +3164,7 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 {
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
 	struct mdp4_overlay_pipe *pipe;
+	int i, mixer;
 
 	if (mfd == NULL)
 		return -ENODEV;
@@ -3209,6 +3185,8 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 		return 0;
 	}
 
+	mixer = pipe->mixer_num;
+
 	if (pipe->mixer_num == MDP4_MIXER2)
 		ctrl->mixer2_played = 0;
 	else if (pipe->mixer_num == MDP4_MIXER1)
@@ -3224,6 +3202,14 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 
 	mdp4_overlay_reg_flush(pipe, 1);
 	mdp4_mixer_stage_down(pipe, 0);
+
+	if (pipe->blt_forced) {
+		if (pipe->flags & MDP_SECURE_OVERLAY_SESSION) {
+			pipe->blt_forced = 0;
+			pipe->req_clk = 0;
+			mdp4_overlay_mdp_perf_req(mfd, ctrl->plist);
+		}
+	}
 
 	if (pipe->mixer_num == MDP4_MIXER0) {
 		if (ctrl->panel_mode & MDP4_PANEL_MDDI) {
@@ -3241,9 +3227,22 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 
 	mdp4_stat.overlay_unset[pipe->mixer_num]++;
 
-	if (pipe->flags & MDP_SECURE_OVERLAY_SESSION)
-		ctrl->sec_active = FALSE;
 	mdp4_overlay_pipe_free(pipe);
+
+	/* mdp4_mixer_stage_down will remove pipe for mixer 1 and 2*/
+	if (mixer > MDP4_MIXER0 && !hdmi_prim_display) {
+		for (i = MDP4_MIXER_STAGE_BASE; i < MDP4_MIXER_STAGE_MAX; i++) {
+			pipe = ctrl->stage[mixer][i];
+			if (pipe && pipe->pipe_type != OVERLAY_TYPE_BF)
+				break;
+		}
+		/* only BF pipe is connected */
+		if (i == MDP4_MIXER_STAGE_MAX) {
+			/* make sure the operation has finished.*/
+			msleep(20);
+			msm_fb_release_timeline(mfd);
+		}
+	}
 
 	mutex_unlock(&mfd->dma->ov_mutex);
 
@@ -3569,7 +3568,7 @@ int mdp4_overlay_commit(struct fb_info *info)
 	msm_fb_signal_timeline(mfd);
 
 	mdp4_overlay_mdp_perf_upd(mfd, 0);
-	mdp4_unmap_sec_resource();
+
 	mutex_unlock(&mfd->dma->ov_mutex);
 
 	return ret;
