@@ -67,7 +67,7 @@ snd-soc-msm8960-objs := msm8960.o apq8064.o msm8930.o mpq8064.o apq8064-i2s.o
 obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
 else
 ifeq ($(CONFIG_MACH_M7_UL),y)
-snd-soc-msm8960-objs := msm8960.o apq8064.o msm8930.o mpq8064.o apq8064-i2s.o
+snd-soc-msm8960-objs := msm8960.o apq8064_m7.o msm8930.o mpq8064.o apq8064-i2s.o
 obj-$(CONFIG_SND_SOC_MSM8960) += snd-soc-msm8960.o
 endif
 endif
