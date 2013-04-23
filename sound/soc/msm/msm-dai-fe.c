@@ -355,6 +355,30 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 	},
 	{
 		.playback = {
+			.stream_name = "PRI_I2S_HOSTLESS Playback",
+			.aif_name = "PRI_I2S_DL_HL",
+			.rates = SNDRV_PCM_RATE_8000_48000,
+			.formats = SNDRV_PCM_FMTBIT_S16_LE,
+			.channels_min = 1,
+			.channels_max = 4,
+			.rate_min =     8000,
+			.rate_max =     48000,
+		},
+		.capture = {
+			.stream_name = "PRI_I2S_HOSTLESS Capture",
+			.aif_name = "PRI_I2S_UL_HL",
+			.rates = SNDRV_PCM_RATE_8000_48000,
+			.formats = SNDRV_PCM_FMTBIT_S16_LE,
+			.channels_min = 1,
+			.channels_max = 2,
+			.rate_min =     8000,
+			.rate_max =    48000,
+		},
+		.ops = &msm_fe_dai_ops,
+		.name = "PRI_I2S_HOSTLESS",
+	},
+	{
+		.playback = {
 			.stream_name = "AUXPCM Hostless Playback",
 			.aif_name = "AUXPCM_DL_HL",
 			.rates = SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000,

@@ -273,6 +273,8 @@ extern struct platform_device apq_cpudai_bt_rx;
 extern struct platform_device apq_cpudai_bt_tx;
 extern struct platform_device apq_cpudai_fm_rx;
 extern struct platform_device apq_cpudai_fm_tx;
+extern struct platform_device apq_cpudai_pri_i2s_rx;
+extern struct platform_device apq_cpudai_pri_i2s_tx;
 extern struct platform_device apq_cpudai_auxpcm_rx;
 extern struct platform_device apq_cpudai_auxpcm_tx;
 extern struct platform_device apq_cpu_fe;
