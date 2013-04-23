@@ -45,6 +45,11 @@ struct msm_serial_hs_platform_data {
 	int uart_cts_gpio;
 	int uart_rfr_gpio;
 	int userid;
+#ifdef CONFIG_MACH_HTC
+	int (*gpio_config)(int);
+	unsigned char bt_wakeup_pin;	
+	unsigned char host_wakeup_pin;	
+#endif
 };
 
 unsigned int msm_hs_tx_empty(struct uart_port *uport);
