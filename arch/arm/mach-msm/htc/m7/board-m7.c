@@ -942,10 +942,8 @@ static struct platform_device m7_mdm_8064_device = {
 #ifdef CONFIG_BT
 static struct msm_serial_hs_platform_data msm_uart_dm6_pdata = {
 	.inject_rx_on_wakeup = 0,
-
-	
-        //	.bt_wakeup_pin = PM8921_GPIO_PM_TO_SYS(BT_WAKE),
-        //	.host_wakeup_pin = PM8921_GPIO_PM_TO_SYS(BT_HOST_WAKE),
+        .bt_wakeup_pin = PM8921_GPIO_PM_TO_SYS(BT_WAKE),
+        .host_wakeup_pin = PM8921_GPIO_PM_TO_SYS(BT_HOST_WAKE),
 };
 
 static struct platform_device m7_rfkill = {
