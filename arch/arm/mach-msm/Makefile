@@ -365,7 +365,9 @@ obj-$(CONFIG_BT_MSM_PINTEST)  += btpintest.o
 obj-$(CONFIG_MSM_FAKE_BATTERY) += fish_battery.o
 obj-$(CONFIG_MSM_RPC_VIBRATOR) += msm_vibrator.o
 ifdef CONFIG_ARCH_APQ8064
-	obj-$(CONFIG_MSM_NATIVE_RESTART) += restart-apq8064.o
+	ifndef CONFIG_MACH_HTC
+		obj-$(CONFIG_MSM_NATIVE_RESTART) += restart-apq8064.o
+	endif
 else
 	obj-$(CONFIG_MSM_NATIVE_RESTART) += restart.o
 endif
