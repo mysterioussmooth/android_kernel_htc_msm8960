@@ -133,6 +133,7 @@ void msm_set_restart_mode(int mode)
 }
 EXPORT_SYMBOL(msm_set_restart_mode);
 
+#ifdef CONFIG_MACH_HTC
 static unsigned mdm2ap_errfatal_restart;
 static unsigned ap2mdm_pmic_reset_n_gpio = -1;
 
@@ -163,6 +164,7 @@ static void turn_off_mdm_power(void)
 		printk(KERN_CRIT "Power off MDM down...\n");
 	}
 }
+#endif
 
 static void __msm_power_off(int lower_pshold)
 {
