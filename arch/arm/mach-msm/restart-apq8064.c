@@ -24,6 +24,7 @@
 #include <linux/mfd/pmic8058.h>
 #include <linux/mfd/pmic8901.h>
 #include <linux/mfd/pm8xxx/misc.h>
+#include <linux/gpio.h>
 
 #include <asm/mach-types.h>
 
@@ -132,8 +133,43 @@ void msm_set_restart_mode(int mode)
 }
 EXPORT_SYMBOL(msm_set_restart_mode);
 
+static unsigned mdm2ap_errfatal_restart;
+static unsigned ap2mdm_pmic_reset_n_gpio = -1;
+
+void set_mdm2ap_errfatal_restart_flag(unsigned flag)
+{
+	mdm2ap_errfatal_restart = flag;
+}
+
+void register_ap2mdm_pmic_reset_n_gpio(unsigned gpio)
+{
+	ap2mdm_pmic_reset_n_gpio = gpio;
+}
+
+#define MDM_HOLD_TIME			2000
+#define MDM_SELF_REFRESH_TIME		3000
+#define MDM_MODEM_DELTA		1000
+static void turn_off_mdm_power(void)
+{
+	int i;
+	
+	if ((ap2mdm_pmic_reset_n_gpio >= 0) && !mdm2ap_errfatal_restart) {
+		printk(KERN_CRIT "Powering off MDM...\n");
+		gpio_direction_output(ap2mdm_pmic_reset_n_gpio, 0);
+		for (i = MDM_HOLD_TIME; i > 0; i -= MDM_MODEM_DELTA) {
+			pet_watchdog();
+			mdelay(MDM_MODEM_DELTA);
+		}
+		printk(KERN_CRIT "Power off MDM down...\n");
+	}
+}
+
 static void __msm_power_off(int lower_pshold)
 {
+#ifdef CONFIG_MACH_HTC
+	turn_off_mdm_power();	
+#endif
+
 	printk(KERN_CRIT "Powering off the SoC\n");
 #ifdef CONFIG_MSM_DLOAD_MODE
 	set_dload_mode(0);
