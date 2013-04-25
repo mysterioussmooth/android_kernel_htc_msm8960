@@ -1163,7 +1163,7 @@ static struct dsi_cmd_desc samsung_jdi_panel_cmd_mode_cmds[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l3), samsung_password_l3},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_cmd_test), samsung_cmd_test},
 #endif
-	{DTYPE_DCS_WRITE,  1, 0, 0, 120, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
+	{DTYPE_DCS_WRITE,  1, 0, 0, 12, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l2), samsung_password_l2},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl1), samsung_MIE_ctrl1},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_ctrl_bl), samsung_ctrl_bl},
@@ -1192,7 +1192,7 @@ static struct dsi_cmd_desc samsung_jdi_panel_cmd_mode_cmds_c2_nvm[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l3), samsung_password_l3},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_cmd_test), samsung_cmd_test},
 
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l2), samsung_password_l2},
 	{DTYPE_GEN_WRITE2, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl1), samsung_MIE_ctrl1},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_ctrl_bl), samsung_ctrl_bl},
@@ -1211,7 +1211,7 @@ static struct dsi_cmd_desc samsung_jdi_panel_cmd_mode_cmds_c2_1[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_cmd_test), samsung_cmd_test},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(Oscillator_Bias_Current), Oscillator_Bias_Current},
 
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l2), samsung_password_l2},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl1), samsung_MIE_ctrl1},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl2), samsung_MIE_ctrl2},
@@ -1235,7 +1235,7 @@ static struct dsi_cmd_desc samsung_jdi_panel_cmd_mode_cmds_c2_2[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_cmd_test), samsung_cmd_test},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(Oscillator_Bias_Current), Oscillator_Bias_Current},
 
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12, sizeof(samsung_panel_exit_sleep), samsung_panel_exit_sleep},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_password_l2), samsung_password_l2},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl1), samsung_MIE_ctrl1},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(samsung_MIE_ctrl2), samsung_MIE_ctrl2},
@@ -1388,7 +1388,7 @@ static struct dsi_cmd_desc sharp_renesas_cmd_on_cmds[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 1, sizeof(nop), nop},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 1, sizeof(enable_te), enable_te},
 	
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12, sizeof(exit_sleep), exit_sleep},
 };
 static struct dsi_cmd_desc m7_sharp_video_on_cmds[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(interface_setting_0), interface_setting_0},
@@ -1467,7 +1467,7 @@ static struct dsi_cmd_desc jdi_renesas_cmd_on_cmds[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(m7_Color_enhancement), m7_Color_enhancement},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(Manufacture_Command_setting), Manufacture_Command_setting},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(lock_command), lock_command},
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12, sizeof(exit_sleep), exit_sleep},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 1, sizeof(write_control_display), write_control_display},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 1, sizeof(Write_Content_Adaptive_Brightness_Control), Write_Content_Adaptive_Brightness_Control},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 1, sizeof(enable_te), enable_te},
@@ -1475,7 +1475,7 @@ static struct dsi_cmd_desc jdi_renesas_cmd_on_cmds[] = {
 
 static struct dsi_cmd_desc jdi_display_off_cmds[] = {
 	{DTYPE_DCS_WRITE, 1, 0, 0, 1, sizeof(display_off), display_off},
-	{DTYPE_DCS_WRITE, 1, 0, 0, 48, sizeof(enter_sleep), enter_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 4, sizeof(enter_sleep), enter_sleep},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(unlock_command), unlock_command},
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 1, sizeof(deep_standby_off), deep_standby_off}
 };
@@ -1555,7 +1555,7 @@ static void m7_display_on(struct msm_fb_data_type *mfd)
 	if (panel_type == PANEL_ID_DLXJ_SHARP_RENESAS ||
 		panel_type == PANEL_ID_DLXJ_SONY_RENESAS ||
 		panel_type == PANEL_ID_M7_SHARP_RENESAS)
-		msleep(120);
+		msleep(12);
 
 	cmdreq.cmds = display_on_cmds;
 	cmdreq.cmds_cnt = display_on_cmds_count;
