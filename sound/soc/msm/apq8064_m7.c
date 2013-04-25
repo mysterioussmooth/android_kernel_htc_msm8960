@@ -443,28 +443,39 @@ static int msm_rcv_amp_on(int on)
 
 	msm_rcv_control = on;
 	pr_info("%s()  %d\n", __func__, msm_rcv_control);
-	// no need to reoccupy it, we can pass on without this, commented @tbalden
-	//ret = gpio_request(RCV_PAMP_GPIO, "AUDIO_RCV_AMP");
-	if (ret) {
-		pr_err("%s: Error requesting GPIO %d\n", __func__,
-			RCV_PAMP_GPIO);
-			return ret;
-		}
-		else {
-			if (msm_rcv_control) {
-				pr_info("%s: enable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
-				usleep_range(20000,20000);
-				ret =gpio_direction_output(RCV_PAMP_GPIO, 1);
-				ret = gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 1);
-			} else {
-				pr_info("%s: disable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
-				gpio_direction_output(RCV_PAMP_GPIO, 0);
-				gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 0);
-				usleep_range(20000,20000);
-			}
-			gpio_free(RCV_PAMP_GPIO);
-		}
-	return 1;
+	ret = gpio_request(RCV_PAMP_GPIO, "AUDIO_RCV_AMP");
+	if (ret)
+          {
+            pr_err("%s: Error requesting GPIO %d\n", __func__,
+                   RCV_PAMP_GPIO);
+            return ret;
+          }
+        else
+          {
+            ret = gpio_request(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), "SPK_SEL_PMGPIO");
+            if (ret)
+              {
+                pr_err("%s: Error requesting GPIO %d\n", __func__,
+                       PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO));
+                return ret;
+              }
+            else {
+              if (msm_rcv_control) {
+                pr_info("%s: enable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
+                usleep_range(20000,20000);
+                ret = gpio_direction_output(RCV_PAMP_GPIO, 1);
+                ret = gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 1);
+              } else {
+                pr_info("%s: disable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
+                gpio_direction_output(RCV_PAMP_GPIO, 0);
+                gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 0);
+                usleep_range(20000,20000);
+              }
+              gpio_free(RCV_PAMP_GPIO);
+              gpio_free(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO));
+            }
+          }
+        return 1;
 }
 
 
@@ -693,25 +704,38 @@ static int msm_set_rcv_amp(struct snd_kcontrol *kcontrol,
 	msm_rcv_control = ucontrol->value.integer.value[0];
 	pr_info("%s()  %d\n", __func__, msm_rcv_control);
 	ret = gpio_request(RCV_PAMP_GPIO, "AUDIO_RCV_AMP");
-	if (ret) {
-		pr_err("%s: Error requesting GPIO %d\n", __func__,
-			RCV_PAMP_GPIO);
-			return ret;
-		}
-		else {
-			if (msm_rcv_control) {
-				pr_info("%s: enable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
-				usleep_range(20000,20000);
-				ret =gpio_direction_output(RCV_PAMP_GPIO, 1);
-				ret = gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 1);
-			} else {
-				pr_info("%s: disable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
-				gpio_direction_output(RCV_PAMP_GPIO, 0);
-				gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 0);
-				usleep_range(20000,20000);
-			}
-			gpio_free(RCV_PAMP_GPIO);
-		}
+	if (ret)
+          {
+            pr_err("%s: Error requesting GPIO %d\n", __func__,
+                   RCV_PAMP_GPIO);
+            return ret;
+          }
+        else
+          {
+            ret = gpio_request(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), "SPK_SEL_PMGPIO");
+            if (ret)
+              {
+                pr_err("%s: Error requesting GPIO %d\n", __func__,
+                       PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO));
+                return ret;
+              }
+            else 
+              {
+                if (msm_rcv_control) {
+                  pr_info("%s: enable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
+                  usleep_range(20000,20000);
+                  ret = gpio_direction_output(RCV_PAMP_GPIO, 1);
+                  ret = gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 1);
+                } else {
+                  pr_info("%s: disable rcv amp gpio %d\n", __func__, HAC_PAMP_GPIO);
+                  gpio_direction_output(RCV_PAMP_GPIO, 0);
+                  gpio_direction_output(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO), 0);
+                  usleep_range(20000,20000);
+                }
+                gpio_free(RCV_PAMP_GPIO);
+                gpio_free(PM8921_GPIO_PM_TO_SYS(RCV_SPK_SEL_PMGPIO));
+              }
+          }
 	return 1;
 }
 
