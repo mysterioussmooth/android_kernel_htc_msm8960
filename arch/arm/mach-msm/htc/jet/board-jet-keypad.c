@@ -34,10 +34,6 @@ module_param_named(keycaps, keycaps, charp, 0);
 
 static struct gpio_event_direct_entry jet_keypad_map[] = {
 	{
-		.gpio = JET_GPIO_PWR_KEYz,
-		.code = KEY_POWER,
-	},
-	{
 		.gpio = JET_GPIO_VOL_UPz,
 		.code = KEY_VOLUMEUP,
 	},

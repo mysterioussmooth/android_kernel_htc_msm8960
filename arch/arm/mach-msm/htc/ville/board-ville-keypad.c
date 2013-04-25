@@ -34,10 +34,6 @@ module_param_named(keycaps, keycaps, charp, 0);
 
 static struct gpio_event_direct_entry ville_keypad_map[] = {
 	{
-		.gpio = VILLE_GPIO_PWR_KEYz,
-		.code = KEY_POWER,
-	},
-	{
 		.gpio = VILLE_GPIO_VOL_DOWNz,
 		.code = KEY_VOLUMEDOWN,
 	},
