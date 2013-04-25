@@ -157,7 +157,7 @@ static int mipi_dsi_panel_power(int on)
 			printk(KERN_ERR "enable regulator %s failed, rc=%d\n", dsivdd_str, rc);
 			return -ENODEV;
 		}
-		msleep(1);
+		//hr_msleep(1);
 		rc = regulator_enable(v_lcmio);
 		if (rc) {
 			printk(KERN_ERR "enable regulator %s failed, rc=%d\n", lcmio_str, rc);
@@ -172,14 +172,14 @@ static int mipi_dsi_panel_power(int on)
 
 		if (!ville_panel_first_init)
                   {
-                    msleep(10);
+                    //                    hr_msleep(10);
                     gpio_set_value(VILLE_GPIO_LCD_RSTz, 1);
-                    msleep(1);
+                    //hr_msleep(1);
                     gpio_set_value(VILLE_GPIO_LCD_RSTz, 0);
-                    msleep(35);
+                    //hr_msleep(35);
                     gpio_set_value(VILLE_GPIO_LCD_RSTz, 1);
 		}
-		msleep(60);
+		//hr_msleep(60);
 
 		bPanelPowerOn = true;
 	} 
@@ -187,9 +187,9 @@ static int mipi_dsi_panel_power(int on)
           {
 		printk(KERN_INFO "%s: off\n", __func__);
 		if (!bPanelPowerOn) return 0;
-		msleep(100);
+		//hr_msleep(100);
 		gpio_set_value(VILLE_GPIO_LCD_RSTz, 0);
-		msleep(10);
+		//hr_msleep(10);
 
 		if (regulator_disable(v_dsivdd)) {
 			printk(KERN_ERR "%s: Unable to enable the regulator: %s\n", __func__, dsivdd_str);
@@ -200,7 +200,7 @@ static int mipi_dsi_panel_power(int on)
 			printk(KERN_ERR "%s: Unable to enable the regulator: %s\n", __func__, lcm_str);
 			return -EINVAL;
 		}
-		msleep(5);
+		//hr_msleep(5);
 		if (regulator_disable(v_lcmio)) {
 			printk(KERN_ERR "%s: Unable to enable the regulator: %s\n", __func__, lcmio_str);
 			return -EINVAL;

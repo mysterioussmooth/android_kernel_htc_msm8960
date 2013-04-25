@@ -53,14 +53,14 @@ static struct dsi_cmd_desc display_on_cmds[] = {
 static struct dsi_cmd_desc sony_display_off_cmds[] = {
 	{DTYPE_DCS_WRITE, 1, 0, 0, 0,
 		sizeof(display_off), display_off},
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100,
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10,
 		sizeof(enter_sleep), enter_sleep}
 };
 
 static struct dsi_cmd_desc novatek_display_off_cmds[] = {
 	{DTYPE_DCS_WRITE, 1, 0, 0, 10,
 		sizeof(display_off), display_off},
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120,
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12,
 		sizeof(enter_sleep), enter_sleep}
 };
 
@@ -348,7 +348,7 @@ static struct dsi_cmd_desc lg_novatek_cmd_on_cmds[] = {
 		sizeof(fir_lg_gamma_04_eb), fir_lg_gamma_04_eb },
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		6, (char[]){0xF0, 0x55, 0xAA, 0x52, 0x00, 0x00} },/* select page 0 */
-	{DTYPE_DCS_WRITE, 1, 0, 0, 120,
+	{DTYPE_DCS_WRITE, 1, 0, 0, 12,
 		sizeof(exit_sleep), exit_sleep},
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0,
 		sizeof(enable_te), enable_te},
@@ -790,7 +790,7 @@ static struct dsi_cmd_desc sony_c1_video_on_cmds[] = {
 #endif
 
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0x00} },
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10, sizeof(exit_sleep), exit_sleep},
 
 	/* For sony cut1 */
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0xEE} },
@@ -1270,7 +1270,7 @@ static struct dsi_cmd_desc sony_panel_video_mode_cmds_c2[] = {
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFB, 0x01} },
 
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0x00} },
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10, sizeof(exit_sleep), exit_sleep},
 
 	/* For random dot noise */
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0xEE} },
@@ -1924,7 +1924,7 @@ static struct dsi_cmd_desc auo_panel_video_mode_cmds[] = {
 #endif
 
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0x00} },
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10, sizeof(exit_sleep), exit_sleep},
 
 	/* for cut 1 */
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, sizeof(sw_wr00), sw_wr00},
@@ -2522,7 +2522,7 @@ static struct dsi_cmd_desc auo_panel_video_mode_cmds_c3[] = {
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0x0A, 0x08}},//PWMDIV=8
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0x00}},
 
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10, sizeof(exit_sleep), exit_sleep},
 
 	/* For random dot noise */
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0xEE} },
@@ -3012,7 +3012,7 @@ static struct dsi_cmd_desc auo_panel_video_mode_cmds_c3_1[] = {
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0x0A, 0x08}},//PWMDIV=8
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0x00}},
 
-	{DTYPE_DCS_WRITE, 1, 0, 0, 100, sizeof(exit_sleep), exit_sleep},
+	{DTYPE_DCS_WRITE, 1, 0, 0, 10, sizeof(exit_sleep), exit_sleep},
 
 	/* For random dot noise */
 	{DTYPE_DCS_WRITE1, 1, 0, 0, 0, 2, (char[]){0xFF, 0xEE} },
