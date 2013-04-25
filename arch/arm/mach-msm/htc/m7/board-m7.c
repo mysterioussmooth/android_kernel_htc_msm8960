@@ -161,12 +161,6 @@
 #define MSM_MM_FW_SIZE		(0x200000 - HOLE_SIZE)
 #define APQ8064_FW_START	APQ8064_FIXED_AREA_START
 
-#ifdef CONFIG_FB_MSM_HDMI_MHL
-static int hdmi_enable_5v(int on);
-static int hdmi_core_power(int on, int show);
-extern void hdmi_hpd_feature(int enable);
-#endif
-
 #define TFA9887_I2C_SLAVE_ADDR  (0x68 >> 1)
 #define TFA9887L_I2C_SLAVE_ADDR (0x6A >> 1)
 #define TPA6185_I2C_SLAVE_ADDR	(0xC6 >> 1)

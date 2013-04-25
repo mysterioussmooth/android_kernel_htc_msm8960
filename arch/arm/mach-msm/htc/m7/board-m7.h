@@ -235,6 +235,11 @@ void m7_init_gpu(void);
 void m7_pm8xxx_gpio_mpp_init(void);
 void m7_usb_uart_switch(int nvbus);
 
+#ifdef CONFIG_FB_MSM_HDMI_MHL
+int hdmi_enable_5v(int on);
+void hdmi_hpd_feature(int on);
+#endif
+
 #ifdef CONFIG_RESET_BY_CABLE_IN
 void reset_dflipflop(void);
 #endif

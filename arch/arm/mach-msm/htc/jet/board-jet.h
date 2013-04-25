@@ -341,6 +341,10 @@ void __init msm8960_allocate_fb_region(void);
 void jet_init_mmc(void);
 void jet_init_fb(void);
 void jet_init_gpu(void);
+#ifdef CONFIG_FB_MSM_HDMI_MHL_SII9234
+int hdmi_enable_5v(int on);
+void hdmi_hpd_feature(int on);
+#endif
 
 extern struct msm_camera_board_info jet_camera_board_info;
 extern struct msm_cache_dump_platform_data msm8960_cache_dump_pdata;

@@ -21,7 +21,7 @@
 #include <mach/panel_id.h>
 #include <mach/msm_memtypes.h>
 #include <linux/bootmem.h>
-
+#include <video/msm_hdmi_modes.h>
 #include "../devices.h"
 #include "../board-elite.h"
 
@@ -60,12 +60,31 @@ static struct resource msm_fb_resources[] = {
 	}
 };
 
+static struct msm_fb_platform_data msm_fb_pdata;
+
 static struct platform_device msm_fb_device = {
 	.name   = "msm_fb",
 	.id     = 0,
 	.num_resources     = ARRAY_SIZE(msm_fb_resources),
 	.resource          = msm_fb_resources,
+	.dev.platform_data = &msm_fb_pdata,
 };
+
+static void __init msm8960_set_display_params(char *prim_panel, char *ext_panel)
+{
+	if (strnlen(prim_panel, PANEL_NAME_MAX_LEN)) {
+		strlcpy(msm_fb_pdata.prim_panel_name, prim_panel,
+			PANEL_NAME_MAX_LEN);
+		pr_debug("msm_fb_pdata.prim_panel_name %s\n",
+			msm_fb_pdata.prim_panel_name);
+	}
+	if (strnlen(ext_panel, PANEL_NAME_MAX_LEN)) {
+		strlcpy(msm_fb_pdata.ext_panel_name, ext_panel,
+			PANEL_NAME_MAX_LEN);
+		pr_debug("msm_fb_pdata.ext_panel_name %s\n",
+			msm_fb_pdata.ext_panel_name);
+	}
+}
 
 int elite_panel_first_init = 1;
 static bool dsi_power_on;
@@ -461,19 +480,24 @@ static struct resource hdmi_msm_resources[] = {
 	},
 };
 
-static int hdmi_enable_5v(int on);
 static int hdmi_core_power(int on, int show);
-extern void hdmi_hpd_feature(int enable);
-/*static int hdmi_cec_power(int on);*/
 
+static mhl_driving_params elite_driving_params[] = {
+	{.format = HDMI_VFRMT_640x480p60_4_3,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_720x480p60_16_9,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1280x720p60_16_9,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_720x576p50_16_9,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1920x1080p24_16_9, .reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1920x1080p30_16_9, .reg_a3=0xEC, .reg_a6=0x0C},
+};
 
 static struct msm_hdmi_platform_data hdmi_msm_data = {
 	.irq = HDMI_IRQ,
 	.enable_5v = hdmi_enable_5v,
 	.core_power = hdmi_core_power,
-	/*.cec_power = hdmi_cec_power,*/
-        //	.driving_params =  elite_driving_params,
-        //	.dirving_params_count = ARRAY_SIZE(elite_driving_params),
+
+        .driving_params =  elite_driving_params,
+        .dirving_params_count = ARRAY_SIZE(elite_driving_params),
 };
 
 static struct platform_device hdmi_msm_device = {
@@ -484,7 +508,7 @@ static struct platform_device hdmi_msm_device = {
 	.dev.platform_data = &hdmi_msm_data,
 };
 
-static int hdmi_enable_5v(int on)
+int hdmi_enable_5v(int on)
 {
 	static int prev_on;
 	int rc;
@@ -589,6 +613,7 @@ static struct platform_device wfd_device = {
 
 void __init elite_init_fb(void)
 {
+  msm8960_set_display_params("mipi_elite", "hdmi_msm");
   platform_device_register(&msm_fb_device);
 #ifdef CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
   platform_device_register(&wfd_panel_device);

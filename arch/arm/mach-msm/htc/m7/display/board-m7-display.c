@@ -28,6 +28,7 @@
 #include <mach/msm_bus_board.h>
 #include <mach/panel_id.h>
 //#include <mach/debug_display.h>
+#include <video/msm_hdmi_modes.h>
 #include "../devices.h"
 #include "../board-m7.h"
 #include <linux/mfd/pm8xxx/pm8921.h>
@@ -99,13 +100,24 @@ static struct resource hdmi_msm_resources[] = {
 	},
 };
 
-static int hdmi_enable_5v(int on);
 static int hdmi_core_power(int on, int show);
+
+static mhl_driving_params m7_driving_params[] = {
+	{.format = HDMI_VFRMT_640x480p60_4_3,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_720x480p60_16_9,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1280x720p60_16_9,	.reg_a3=0xFB, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_720x576p50_16_9,	.reg_a3=0xEC, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1920x1080p24_16_9, .reg_a3=0xFB, .reg_a6=0x0C},
+	{.format = HDMI_VFRMT_1920x1080p30_16_9, .reg_a3=0xFB, .reg_a6=0x0C},
+};
 
 static struct msm_hdmi_platform_data hdmi_msm_data = {
 	.irq = HDMI_IRQ,
 	.enable_5v = hdmi_enable_5v,
 	.core_power = hdmi_core_power,
+	
+	.driving_params = m7_driving_params,
+	.dirving_params_count = ARRAY_SIZE(m7_driving_params),
 };
 
 static struct platform_device hdmi_msm_device = {
@@ -130,7 +142,7 @@ static struct platform_device hdmi_msm_device = {
 #define BOOST_5V	"ext_5v"
 static struct regulator *reg_boost_5v = NULL;
 
-static int hdmi_enable_5v(int on)
+int hdmi_enable_5v(int on)
 {
 	static int prev_on = 0;
 	int rc;
@@ -201,36 +213,7 @@ static int hdmi_core_power(int on, int show)
 }
 #endif
 
-static int m7_detect_panel(const char *name)
-{
-#if 0
-	if (panel_type == PANEL_ID_DLX_SONY_RENESAS) {
-		if (!strncmp(name, MIPI_RENESAS_PANEL_NAME,
-			strnlen(MIPI_RENESAS_PANEL_NAME,
-				PANEL_NAME_MAX_LEN))){
-			printk(KERN_INFO "m7_%s\n", name);
-			return 0;
-		}
-	} else if (panel_type == PANEL_ID_DLX_SHARP_RENESAS) {
-		if (!strncmp(name, MIPI_RENESAS_PANEL_NAME,
-			strnlen(MIPI_RENESAS_PANEL_NAME,
-				PANEL_NAME_MAX_LEN))){
-			printk(KERN_INFO "m7_%s\n", name);
-			return 0;
-		}
-	}
-#endif
-	if (!strncmp(name, HDMI_PANEL_NAME,
-		strnlen(HDMI_PANEL_NAME,
-			PANEL_NAME_MAX_LEN)))
-		return 0;
-
-	return -ENODEV;
-}
-
-static struct msm_fb_platform_data msm_fb_pdata = {
-	.detect_client = m7_detect_panel,
-};
+static struct msm_fb_platform_data msm_fb_pdata;
 
 static struct platform_device msm_fb_device = {
 	.name              = "msm_fb",
@@ -239,6 +222,22 @@ static struct platform_device msm_fb_device = {
 	.resource          = msm_fb_resources,
 	.dev.platform_data = &msm_fb_pdata,
 };
+
+static void __init apq8064_set_display_params(char *prim_panel, char *ext_panel)
+{
+	if (strnlen(prim_panel, PANEL_NAME_MAX_LEN)) {
+		strlcpy(msm_fb_pdata.prim_panel_name, prim_panel,
+			PANEL_NAME_MAX_LEN);
+		pr_debug("msm_fb_pdata.prim_panel_name %s\n",
+			msm_fb_pdata.prim_panel_name);
+	}
+	if (strnlen(ext_panel, PANEL_NAME_MAX_LEN)) {
+		strlcpy(msm_fb_pdata.ext_panel_name, ext_panel,
+			PANEL_NAME_MAX_LEN);
+		pr_debug("msm_fb_pdata.ext_panel_name %s\n",
+			msm_fb_pdata.ext_panel_name);
+	}
+}
 
 void __init m7_allocate_fb_region(void)
 {
@@ -2674,24 +2673,24 @@ static void __exit pwm_i2c_remove(void)
 
 void __init m7_init_fb(void)
 {
-
-	platform_device_register(&msm_fb_device);
-
-	if (panel_type == PANEL_ID_M7_SHARP_RENESAS)
-		mdp_pdata.cont_splash_enabled = 0x1;
-
-	if(panel_type != PANEL_ID_NONE) {
-		msm_fb_register_device("mdp", &mdp_pdata);
-		msm_fb_register_device("mipi_dsi", &mipi_dsi_pdata);
-		wa_xo = msm_xo_get(MSM_XO_TCXO_D0, "mipi");
-	}
-	msm_fb_register_device("dtv", &dtv_pdata);
+  apq8064_set_display_params("mipi_jet", "hdmi_msm");
+  platform_device_register(&msm_fb_device);
+  
+  if (panel_type == PANEL_ID_M7_SHARP_RENESAS)
+    mdp_pdata.cont_splash_enabled = 0x1;
+  
+  if(panel_type != PANEL_ID_NONE) {
+    msm_fb_register_device("mdp", &mdp_pdata);
+    msm_fb_register_device("mipi_dsi", &mipi_dsi_pdata);
+    wa_xo = msm_xo_get(MSM_XO_TCXO_D0, "mipi");
+  }
+  msm_fb_register_device("dtv", &dtv_pdata);
 #ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL
-	platform_device_register(&hdmi_msm_device);
+  platform_device_register(&hdmi_msm_device);
 #endif
 #ifdef CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
-	platform_device_register(&wfd_panel_device);
-	platform_device_register(&wfd_device);
+  platform_device_register(&wfd_panel_device);
+  platform_device_register(&wfd_device);
 #endif
 }
 
