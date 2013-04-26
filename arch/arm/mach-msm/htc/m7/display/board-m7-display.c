@@ -2673,7 +2673,7 @@ static void __exit pwm_i2c_remove(void)
 
 void __init m7_init_fb(void)
 {
-  apq8064_set_display_params("mipi_jet", "hdmi_msm");
+  apq8064_set_display_params("mipi_m7", "hdmi_msm");
   platform_device_register(&msm_fb_device);
   
   if (panel_type == PANEL_ID_M7_SHARP_RENESAS)
