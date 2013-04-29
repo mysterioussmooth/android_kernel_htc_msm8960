@@ -79,6 +79,9 @@ void bcm_bt_unlock(int cookie)
 	}
 }
 
+EXPORT_SYMBOL(bcm_bt_lock);
+EXPORT_SYMBOL(bcm_bt_unlock);
+
 static int btlock_open(struct inode *inode, struct file *file)
 {
 	return 0;
@@ -309,20 +312,6 @@ static void m7_GPIO_config_bt_off(void)
 				ARRAY_SIZE(m7_GPIO_bt_off_table));
 	mdelay(2);
 
-	
-	
-
-	
-
-	
-	
-
-	
-
-
-	
-
-	
 	gpio_set_value(PM8921_GPIO_PM_TO_SYS(BT_WAKE), 0); 
 
 	printk(KERN_INFO "[BT]== R OFF ==\n");

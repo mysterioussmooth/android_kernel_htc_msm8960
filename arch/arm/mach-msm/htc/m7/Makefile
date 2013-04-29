@@ -14,5 +14,3 @@ obj-$(CONFIG_MACH_M7_UL) += ../htc_wifi_nvs.o
 ifdef CONFIG_BT
 	obj-$(CONFIG_MACH_M7_UL) += ../htc_4335_wl_reg.o
 endif
-
-
